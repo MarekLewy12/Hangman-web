@@ -9,6 +9,7 @@
   <meta name="description" content="Gra wisielec z różnymi poziomami trudności">
 </head>
 <body>
+<!-- Menu startowe -->
 <div class="main">
   <h1>Hangman by <span class="name">Maro</span></h1>
   <h2>Wybierz poziom trudności:</h2>
@@ -18,6 +19,25 @@
     <button class="btn" id="hard">Trudny</button>
   </div>
   <button class="start-button">Rozpocznij grę</button>
+</div>
+
+<!-- UI gry – początkowo ukryte -->
+<div id="game-container" class="hidden">
+  <div class="game-wrapper">
+    <!-- Lewa kolumna: słowo, klawiatura, błędne litery -->
+    <div class="left-column">
+      <div id="word-container"></div>
+      <div id="keyboard"></div>
+      <div id="wrong-letters">
+        <p>Błędne litery:</p>
+        <span id="wrong-letters-list"></span>
+      </div>
+    </div>
+    <!-- Prawa kolumna: canvas z wisielcem -->
+    <div class="right-column">
+      <canvas id="hangman-canvas" width="300" height="300"></canvas>
+    </div>
+  </div>
 </div>
 
 <script src="js/app.js"></script>
