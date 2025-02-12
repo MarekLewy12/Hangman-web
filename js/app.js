@@ -7,7 +7,7 @@ let selectedWord = '';
 let displayedWord = [];
 let wrongLetters = [];
 let errors = 0;
-const maxErrors = 6;
+const maxErrors = 7;
 let currentHint = '';
 let currentDifficulty = '';
 
@@ -139,8 +139,8 @@ function initCanvas() {
 }
 
 function drawHangman() {
-  if (errors > 0 && errors <= HANGMAN_PARTS.length) {
-    HANGMAN_PARTS[errors - 1]();
+  for (let i = 0; i < errors && i < HANGMAN_PARTS.length; i++) {
+    HANGMAN_PARTS[i]();
   }
 }
 
@@ -177,10 +177,18 @@ function showModal(title, message, showReplayButton = true) {
   const modalMessage = document.getElementById('modal-message');
   const modalButton = document.getElementById('modal-button');
   const modalClose = document.getElementById('modal-close');
+  const modalMenu = document.getElementById('modal-menu');
 
   modalTitle.textContent = title;
   modalMessage.textContent = message;
   modal.classList.remove('hidden');
+
+  modalMenu.style.display = 'inline-block';
+  modalMenu.onclick = () => {
+    modal.classList.add('hidden');
+    mainMenu.classList.remove('hidden');
+    gameContainer.classList.add('hidden');
+  };
 
   if (showReplayButton) {
     modalButton.style.display = 'inline-block';
@@ -244,10 +252,10 @@ function handleLetterClick(letter) {
       drawHangman();
       updateGameStats();
 
-      if (errors >= maxErrors) {
+      if (errors === maxErrors) {
         stats.losses++;
         stats.currentStreak = 0;
-        showModal('Przegrana!', `Prawidłowe słowo to: ${selectedWord}`, false);
+        showModal('Przegrana!', `Prawidłowe słowo to: ${selectedWord}`, true);
         wordContainer.classList.add('lose-animation');
         setTimeout(() => wordContainer.classList.remove('lose-animation'), 500);
       }
@@ -315,8 +323,11 @@ const modalHTML = `
     <div class="modal-content">
         <h2 id="modal-title" class="modal-title"></h2>
         <p id="modal-message"></p>
-        <button id="modal-button">Zagraj ponownie</button>
-        <button id="modal-close">Zamknij</button>
+        <div class="modal-buttons">
+            <button id="modal-button">Zagraj ponownie</button>
+            <button id="modal-menu">Powrót do menu</button>
+            <button id="modal-close">Zamknij</button>
+        </div>
     </div>
 </div>
 `;
@@ -343,7 +354,9 @@ const modalStyles = `
     padding: 30px;
     border-radius: 15px;
     text-align: center;
-    max-width: 80%;
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
     animation: modalAppear 0.3s ease;
 }
 
@@ -356,7 +369,13 @@ const modalStyles = `
     display: none;
 }
 
-#modal-button, #modal-close {
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#modal-button, #modal-close, #modal-menu {
     background: #9796f0;
     color: white;
     border: none;
@@ -379,6 +398,7 @@ document.head.appendChild(styleSheet);
 // Add hint button
 const hintButton = `<button id="hint-button" class="btn">Podpowiedź</button>`;
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', hintButton);
+
 
 // Hint handling
 document.getElementById('hint-button').onclick = () => {
