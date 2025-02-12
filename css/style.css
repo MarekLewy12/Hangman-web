@@ -42,6 +42,7 @@ h1 {
 .name {
   color: #92edeb;
   display: inline;
+  text-align: center;
 }
 
 h2 {
@@ -49,6 +50,13 @@ h2 {
   margin: 20px 0;
   color: #fff;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#game-modal .modal-title {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #333; /* Ciemniejszy kolor tekstu */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .btn,
@@ -68,6 +76,21 @@ h2 {
   transform: scale(1.05);
   background-color: #fbc7d4;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.start-button {
+  background-color: #b3b3f4;
+}
+
+.start-button:hover {
+  background-color: #a1a1e4;
+}
+
+.difficulty-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 @keyframes pulse {
@@ -147,17 +170,71 @@ h2 {
   border: 2px solid #9796f0;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  /*transition: background-color 0.3s;*/
+  transform: scale(1);
+  transition: all 0.2s ease;
 }
 
-#keyboard .key:hover {
-  background-color: #fbc7d4;
+#keyboard .key:not(.disabled):hover {
+  transform: scale(1.1);
+  background-color: #9796f0;
+  color: #fff;
 }
 
 #keyboard .key.disabled {
-  background-color: #ccc;
-  border-color: #aaa;
+  background-color: #e0e0e0;
+  color: #999;
+  border-color: #ccc;
+  transform: scale(0.95);
   cursor: not-allowed;
+}
+
+
+#word-container {
+  font-size: 2.5rem;
+  letter-spacing: 0.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 20px 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+}
+
+.letter-space {
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  margin: 0 5px;
+}
+
+/* Stylizacja listy błędnych liter */
+#wrong-letters {
+  background: rgba(251, 199, 212, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#wrong-letters p {
+  margin: 0;
+  color: #666;
+  font-weight: bold;
+}
+
+#wrong-letters-list {
+  color: #ff4757;
+  font-size: 1.2em;
+  letter-spacing: 2px;
 }
 
 #wrong-letters {
@@ -177,17 +254,103 @@ h2 {
 }
 
 @media (max-width: 768px) {
+  .name {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+
+  h2 {
+    text-align: center;
+    width: 100%;
+  }
+
   .game-wrapper {
     flex-direction: column;
     align-items: center;
+    gap: 20px;
+    padding: 10px;
   }
-  #word-container {
-    font-size: 2rem;
-    letter-spacing: 0.5rem;
+
+  .left-column,
+  .right-column {
+    width: 100%;
   }
+
+  #hangman-canvas {
+    width: 90%;
+    height: auto;
+  }
+
+  #keyboard {
+    padding: 0 10px;
+    box-sizing: border-box;
+    /*justify-content: flex-start;*/
+    margin-right: 0.5rem;
+  }
+
   #keyboard .key {
     width: 40px;
     height: 40px;
+    line-height: 40px;
     font-size: 1.2rem;
   }
+
+  #word-container {
+    font-size: 1.5rem;
+    letter-spacing: 0.2rem;
+    padding: 10px 15px;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-top: 10px;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin: 15px 0;
+  }
+}
+
+@keyframes win {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.1);}
+  100% {transform: scale(1);}
+}
+
+@keyframes lose {
+  0% {transform: rotate(0deg);}
+  50% {transform: rotate(10deg);}
+  100% {transform: rotate(-10deg);}
+}
+
+.win-animation {
+  animation: win 0.5s ease;
+}
+
+.lose-animation {
+  animation: lose 0.5s ease;
+}
+
+.game-stats {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.game-stats span {
+  font-weight: bold;
+  color: #9796f0;
+}
+
+.streak span {
+  color: #ff6b6b;
 }
