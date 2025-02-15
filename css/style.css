@@ -260,6 +260,128 @@ h2 {
   grid-template-columns: repeat(2, minmax(200px, 1fr));
 }
 
+@keyframes win {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.1);}
+  100% {transform: scale(1);}
+}
+
+@keyframes lose {
+  0% {transform: rotate(0deg);}
+  50% {transform: rotate(10deg);}
+  100% {transform: rotate(-10deg);}
+}
+
+.win-animation {
+  animation: win 0.5s ease;
+}
+
+.lose-animation {
+  animation: lose 0.5s ease;
+}
+
+.game-stats {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.game-stats span {
+  font-weight: bold;
+  color: #9796f0;
+}
+
+.streak span {
+  color: #ff6b6b;
+}
+
+/* Style for the mode toggle button */
+#mode-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  /*background: #fff;*/
+  padding: 5px;
+}
+
+/* DARK MODE STYLES */
+body.dark-mode {
+  background: #222;
+  color: #ddd;
+}
+
+body.dark-mode .btn {
+  background-color: #444;
+  border-color: #666;
+  color: #ddd;
+}
+
+body.dark-mode .modal-content {
+  background: #333;
+  color: #ddd;
+}
+
+body.dark-mode .modal-content button {
+  background: #444;
+  border: 1px solid #666;
+  color: #ddd;
+}
+
+body.dark-mode .modal-content button:hover {
+  background: #555;
+}
+
+body.dark-mode .modal-title {
+  color: #ddd !important;
+}
+
+body.dark-mode .btn.selected {
+  background-color: #6c5ce7;
+  border-color: #6c5ce7;
+  color: #fff;
+}
+
+body.dark-mode #keyboard .key {
+  background-color: #444;
+  border-color: #666;
+  color: #ddd;
+}
+
+body.dark-mode #keyboard .key:not(.disabled):hover {
+  background-color: #6c5ce7;
+  color: #fff;
+}
+
+body.dark-mode #keyboard .key.disabled {
+  background-color: #3d0909;
+  color: #999;
+  border-color: #888;
+}
+
+body.dark-mode #exit-button {
+  background-color: #444 !important;
+  border: 1px solid #666;
+  color: #ddd;
+}
+
+body.dark-mode #wrong-letters {
+  background: rgba(50, 50, 50, 0.6);
+  border: 1px solid #666;
+  color: #ddd;
+}
+
+body.dark-mode #wrong-letters p {
+  color: #ddd;
+}
+
+/* STYLES FOR MOBILE */
 @media (max-width: 768px) {
   .game-stats {
     margin: 1rem;
@@ -335,44 +457,4 @@ h2 {
     font-size: 2rem;
     margin: 15px 0;
   }
-}
-
-@keyframes win {
-  0% {transform: scale(1);}
-  50% {transform: scale(1.1);}
-  100% {transform: scale(1);}
-}
-
-@keyframes lose {
-  0% {transform: rotate(0deg);}
-  50% {transform: rotate(10deg);}
-  100% {transform: rotate(-10deg);}
-}
-
-.win-animation {
-  animation: win 0.5s ease;
-}
-
-.lose-animation {
-  animation: lose 0.5s ease;
-}
-
-.game-stats {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
-}
-
-.game-stats span {
-  font-weight: bold;
-  color: #9796f0;
-}
-
-.streak span {
-  color: #ff6b6b;
 }

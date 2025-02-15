@@ -544,7 +544,7 @@ document.head.appendChild(styleSheet);
 
 // Add hint button
 const hintButton = `<button id="hint-button" class="btn">Podpowiedź</button>`;
-const exitButton = `<button id="exit-button" class="btn" style="background-color: lightpink">Wyjdź</button>`;
+const exitButton = `<button id="exit-button" class="btn">Wyjdź</button>`;
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', exitButton);
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', hintButton);
 
