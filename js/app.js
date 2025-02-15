@@ -1,4 +1,4 @@
-const difficultyButtons = document.querySelectorAll('.btn');
+const difficultyButtons = document.querySelectorAll('.difficulty-buttons .btn');
 const startButton = document.querySelector('.start-button');
 const mainMenu = document.querySelector('.main');
 const gameContainer = document.querySelector('#game-container');
@@ -7,9 +7,10 @@ let selectedWord = '';
 let displayedWord = [];
 let wrongLetters = [];
 let errors = 0;
-const maxErrors = 7;
+let maxErrors = 0;
 let currentHint = '';
 let currentDifficulty = '';
+let timerInterval = null;
 
 // Stats
 let stats = {
@@ -23,6 +24,56 @@ const wordContainer = document.getElementById('word-container');
 const wrongLettersList = document.getElementById('wrong-letters-list');
 const canvas = document.getElementById('hangman-canvas');
 const ctx = canvas.getContext('2d');
+
+// Game modes
+const gameModes = {
+  classic: {
+    name: 'Klasyczny',
+    maxErrors: 7,
+    setup: () => {
+      return {
+        maxErrors: 7,
+        showHints: true,
+        wordDisplay: 'normal'
+      };
+    }
+  },
+  noMistake: {
+    name: 'Bez błędów',
+    maxErrors: 1,
+    setup: () => {
+      return {
+        maxErrors: 1,
+        showHints: true,
+        wordDisplay: 'normal'
+      };
+    }
+  },
+  noHints: {
+    name: 'Bez podpowiedzi',
+    maxErrors: 7,
+    setup: () => {
+      return {
+        maxErrors: 7,
+        showHints: false,
+        wordDisplay: 'reversed'
+      };
+    }
+  },
+  express: {
+    name: 'Ekspres!',
+    maxErrors: 7,
+    setup: () => {
+      return {
+        maxErrors: 7,
+        showHints: true,
+        wordDisplay: 'normal',
+        timeLimit: 30
+      };
+    }
+  }
+};
+
 
 // words to guess
 const words = {
@@ -58,6 +109,27 @@ const words = {
   ]
 };
 
+let usedWords = {
+  easy: new Set(),
+  medium: new Set(),
+  hard: new Set()
+};
+
+function getRandomWord(difficulty) {
+  const availableWords = words[difficulty].filter(wordObj => !usedWords[difficulty].has(wordObj.word));
+
+  // reset used words
+  if (availableWords.length === 0) {
+    usedWords[difficulty].clear();
+    return words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+  }
+
+  // get random word
+  const randomWordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+  usedWords[difficulty].add(randomWordObj.word);
+  return randomWordObj;
+}
+
 // Keyboard handling
 document.addEventListener('keydown', (event) => {
   if (gameContainer.classList.contains('hidden')) return;
@@ -70,12 +142,22 @@ document.addEventListener('keydown', (event) => {
 
 for (const button of difficultyButtons) {
   button.addEventListener('click', () => {
-    for (const btn of difficultyButtons) {
-      btn.classList.remove('selected');
-    }
+    difficultyButtons.forEach(btn => btn.classList.remove('selected'));
     button.classList.add('selected');
   });
 }
+
+const modeButtons = document.querySelectorAll('.btn.mode');
+let currentMode = 'classic';
+
+modeButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    modeButtons.forEach(btn => btn.classList.remove('selected'));
+    button.classList.add('selected');
+    currentMode = button.id;
+  });
+});
+
 
 const HANGMAN_PARTS = [
   // Podstawa
@@ -152,12 +234,13 @@ function updateWordDisplay() {
 
 function updateGameStats() {
   if (!currentDifficulty) {
-    const selectedDifficultyButton = document.querySelector('.btn.selected');
+    const selectedDifficultyButton = document.querySelector('.difficulty-buttons .btn.selected');
     currentDifficulty = selectedDifficultyButton ? selectedDifficultyButton.id : 'brak';
   }
 
   const statsHTML = `
         <div class="difficulty">Poziom trudności: <span>${currentDifficulty}</span></div>
+        <div class="gamemode">Tryb gry: <span>${gameModes[currentMode].name}</span></div>
         <div class="attempts">Pozostało prób: <span>${maxErrors - errors}</span></div>
         <div class="streak">Seria zwycięstw: <span>${stats.currentStreak}</span></div>
         <div class="score">Wygrane: <span>${stats.wins}</span> | Przegrane: <span>${stats.losses}</span></div>
@@ -183,13 +266,16 @@ function showModal(title, message, showReplayButton = true) {
   modalMessage.textContent = message;
   modal.classList.remove('hidden');
 
-  modalMenu.style.display = 'inline-block';
-  modalMenu.onclick = () => {
-    modal.classList.add('hidden');
-    mainMenu.classList.remove('hidden');
-    gameContainer.classList.add('hidden');
-  };
-
+  if (title === 'Podpowiedź') {
+    modalMenu.style.display = 'none';
+  } else {
+    modalMenu.style.display = 'inline-block';
+    modalMenu.onclick = () => {
+      modal.classList.add('hidden');
+      mainMenu.classList.remove('hidden');
+      gameContainer.classList.add('hidden');
+    };
+  }
   if (showReplayButton) {
     modalButton.style.display = 'inline-block';
     modalButton.onclick = () => {
@@ -264,13 +350,17 @@ function handleLetterClick(letter) {
 }
 
 function resetGame() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
   generateKeyboard();
 
-  const selectedDifficultyButton = document.querySelector('.btn.selected');
+  const selectedDifficultyButton = document.querySelector('.difficulty-buttons .btn.selected');
   const difficulty = selectedDifficultyButton ? selectedDifficultyButton.id : 'brak';
   currentDifficulty = difficulty;
 
-  const randomWordObj = words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+  const randomWordObj = getRandomWord(difficulty);
   selectedWord = randomWordObj.word.toLowerCase();
   currentHint = randomWordObj.hint;
 
@@ -293,16 +383,65 @@ function startGame() {
   }
 
   const difficulty = selectedDifficultyButton.id;
+  const modeConfig = gameModes[currentMode].setup();
+
+  const hintButton = document.getElementById('hint-button');
+  if (!modeConfig.showHints) {
+    hintButton.style.display = 'none';
+  } else {
+    hintButton.style.display = 'block';
+  }
+
+  maxErrors = modeConfig.maxErrors;
   currentDifficulty = difficulty;
 
+  if (currentMode === 'express') {
+    let timeLeft = modeConfig.timeLimit;
+    let timerDisplay = document.getElementById('timer-display');
+    if (!timerDisplay) {
+      timerDisplay = document.createElement('div');
+      timerDisplay.id = 'timer-display';
+      timerDisplay.style.fontSize = '1.5rem';
+      timerDisplay.style.padding = '10px';
+      timerDisplay.style.backgroundColor = '#fff';
+      timerDisplay.style.border = '2px solid #9796f0';
+      timerDisplay.style.borderRadius = '8px';
+      timerDisplay.style.width = '200px';
+      timerDisplay.style.margin = '10px auto';
+      timerDisplay.style.textAlign = 'center';
+      timerDisplay.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.2)';
+      document.querySelector('#game-container').insertBefore(timerDisplay, document.querySelector('.game-wrapper'));
+    }
+    timerDisplay.textContent = `Czas: ${timeLeft} s`;
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = `Czas: ${timeLeft} s`;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        stats.losses++;
+        stats.currentStreak = 0;
+        showModal('Przegrana!', `Czas minął! Prawidłowe słowo to: ${selectedWord}`, true);
+      }
+    }, 1000);
+  } else {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    const timerDisplay = document.getElementById('timer-display');
+    if (timerDisplay) timerDisplay.remove();
+  }
+
   generateKeyboard();
-  const randomWordObj = words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+  const randomWordObj = getRandomWord(difficulty);
   selectedWord = randomWordObj.word.toLowerCase();
   currentHint = randomWordObj.hint;
 
   displayedWord = selectedWord.split('').map(() => '_');
   wrongLetters = [];
   errors = 0;
+
 
   updateWordDisplay();
   updateGameStats();
@@ -397,10 +536,25 @@ document.head.appendChild(styleSheet);
 
 // Add hint button
 const hintButton = `<button id="hint-button" class="btn">Podpowiedź</button>`;
+const exitButton = `<button id="exit-button" class="btn" style="background-color: lightpink">Wyjdź</button>`;
+document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', exitButton);
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', hintButton);
 
 
 // Hint handling
 document.getElementById('hint-button').onclick = () => {
   showModal('Podpowiedź', currentHint, false);
+};
+
+document.getElementById('exit-button').onclick = () => {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  const timerDisplay = document.getElementById('timer-display');
+  if (timerDisplay) timerDisplay.remove();
+
+  mainMenu.classList.remove('hidden');
+  gameContainer.classList.add('hidden');
 };

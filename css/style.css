@@ -89,7 +89,8 @@ h2 {
 }
 
 .start-button {
-  background-color: #b3b3f4;
+  margin-top: 2rem;
+  background-color: #c6c6f3;
 }
 
 .start-button:hover {
@@ -254,8 +255,14 @@ h2 {
   }
 }
 
+.game-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+}
+
 @media (max-width: 768px) {
   .game-stats {
+    margin: 1rem;
     flex-direction: column;
     gap: 20px;
   }
@@ -303,6 +310,20 @@ h2 {
     height: 40px;
     line-height: 40px;
     font-size: 1.2rem;
+  }
+
+  #word-container {
+    font-size: 1.8rem;
+    letter-spacing: 0.3rem;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+
+  .letter-space {
+    min-width: 20px;
+    margin: 0 2px;
   }
 
   h1 {
