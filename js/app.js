@@ -78,34 +78,34 @@ const gameModes = {
 // words to guess
 const words = {
   easy: [
-    { word: 'kot', hint: 'Domowy pupil, który mruczy' },
-    { word: 'pies', hint: 'Najlepszy przyjaciel człowieka' },
-    { word: 'dom', hint: 'Miejsce gdzie mieszkamy' },
-    { word: 'sok', hint: 'Napój z owoców' },
-    { word: 'rower', hint: 'Pojazd na dwóch kołach' },
-    { word: 'mleko', hint: 'Biały napój od krowy' },
-    { word: 'chleb', hint: 'Podstawowy wypiek z mąki' },
-    { word: 'zupa', hint: 'Gorące danie w płynie' }
+    { word: 'samolot', hint: 'Środek transportu w powietrzu' },
+    { word: 'rower', hint: 'Pojazd napędzany siłą nóg' },
+    { word: 'kwiat', hint: 'Roślina ozdobna, która rozkwita wiosną' },
+    { word: 'jabłko', hint: 'Zdrowy, soczysty owoc' },
+    { word: 'kawa', hint: 'Napój pobudzający o poranku' },
+    { word: 'krzesło', hint: 'Mebel do siedzenia' },
+    { word: 'biurko', hint: 'Miejsce do pracy i nauki' },
+    { word: 'buty', hint: 'Obuwie do chodzenia' }
   ],
   medium: [
-    { word: 'komputer', hint: 'Urządzenie elektroniczne do pracy i rozrywki' },
-    { word: 'telefon', hint: 'Służy do komunikacji' },
-    { word: 'telewizor', hint: 'Pokazuje programy i filmy' },
-    { word: 'samochód', hint: 'Czterokołowy środek transportu' },
-    { word: 'czekolada', hint: 'Słodki przysmak z kakao' },
-    { word: 'internet', hint: 'Globalna sieć komputerowa' },
-    { word: 'słońce', hint: 'Świeci na niebie w dzień' },
-    { word: 'księżyc', hint: 'Świeci na niebie w nocy' }
+    { word: 'biblioteka', hint: 'Miejsce pełne książek' },
+    { word: 'komputer', hint: 'Urządzenie do pracy i rozrywki' },
+    { word: 'muzeum', hint: 'Instytucja z eksponatami historycznymi i artystycznymi' },
+    { word: 'teatr', hint: 'Miejsce wystaw teatralnych' },
+    { word: 'smartfon', hint: 'Nowoczesny telefon z ekranem dotykowym' },
+    { word: 'akwarystyka', hint: 'Hobby polegające na hodowli ryb' },
+    { word: 'cinema', hint: 'Miejsce, gdzie ogląda się filmy' },
+    { word: 'kulinaria', hint: 'Sztuka gotowania i przygotowywania potraw' }
   ],
   hard: [
-    { word: 'województwo', hint: 'Jednostka podziału administracyjnego Polski' },
-    { word: 'encyklopedia', hint: 'Książka zawierająca zbiór wiedzy' },
-    { word: 'mikroskop', hint: 'Przyrząd do oglądania małych obiektów' },
-    { word: 'temperatura', hint: 'Określa jak ciepło lub zimno jest na zewnątrz' },
-    { word: 'klawiatura', hint: 'Służy do wpisywania tekstu' },
-    { word: 'demokracja', hint: 'System rządów większości' },
-    { word: 'technologia', hint: 'Nauka o metodach wytwarzania' },
-    { word: 'fotografia', hint: 'Sztuka robienia zdjęć' }
+    { word: 'kryptografia', hint: 'Sztuka szyfrowania informacji' },
+    { word: 'neurologia', hint: 'Nauka o układzie nerwowym' },
+    { word: 'antropologia', hint: 'Badanie człowieka i jego kultury' },
+    { word: 'elektromagnetyzm', hint: 'Dziedzina fizyki dotycząca pól magnetycznych i elektrycznych' },
+    { word: 'biotechnologia', hint: 'Wykorzystanie organizmów żywych w przemyśle' },
+    { word: 'konsolidacja', hint: 'Proces łączenia lub umacniania czegoś' },
+    { word: 'symbioza', hint: 'Współistnienie dwóch gatunków na wzajemną korzyść' },
+    { word: 'polimeryzacja', hint: 'Proces tworzenia polimerów z monomerów' }
   ]
 };
 
@@ -253,6 +253,13 @@ function updateGameStats() {
     document.querySelector('#game-container').insertBefore(statsDiv, document.querySelector('.game-wrapper'));
   }
   statsDiv.innerHTML = statsHTML;
+
+  if (currentMode !== 'express') {
+    statsDiv.style.margin = '80px 1rem 1rem';
+  } else {
+    statsDiv.style.margin = '0';
+  }
+
 }
 function showModal(title, message, showReplayButton = true) {
   const modal = document.getElementById('game-modal');
@@ -381,6 +388,38 @@ function resetGame() {
   wrongLettersList.textContent = '';
 
   initCanvas();
+
+  // If in express mode, reinitialize the timer
+  if (currentMode === 'express') {
+    let timerDisplay = document.getElementById('timer-display');
+    if (!timerDisplay) {
+      timerDisplay = document.createElement('div');
+      timerDisplay.id = 'timer-display';
+      timerDisplay.style.fontSize = '1.5rem';
+      timerDisplay.style.padding = '10px';
+      timerDisplay.style.backgroundColor = '#fff'; // This will be overridden by dark mode styles if needed
+      timerDisplay.style.border = '2px solid #9796f0';
+      timerDisplay.style.borderRadius = '8px';
+      timerDisplay.style.width = '200px';
+      timerDisplay.style.margin = '10px auto';
+      timerDisplay.style.textAlign = 'center';
+      timerDisplay.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.2)';
+      document.querySelector('#game-container').insertBefore(timerDisplay, document.querySelector('.game-wrapper'));
+    }
+    let timeLeft = 30; // reset time to 30 seconds
+    timerDisplay.textContent = `Czas: ${timeLeft} s`;
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = `Czas: ${timeLeft} s`;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        stats.losses++;
+        stats.currentStreak = 0;
+        showModal('Przegrana!', `Czas minął! Prawidłowe słowo to: ${selectedWord}`, true);
+      }
+    }, 1000);
+  }
 }
 
 function startGame() {

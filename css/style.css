@@ -302,7 +302,7 @@ h2 {
 
 /* Style for the mode toggle button */
 #mode-toggle {
-  position: fixed;
+  position: absolute;
   top: 20px;
   left: 20px;
   z-index: 1000;
@@ -381,12 +381,19 @@ body.dark-mode #wrong-letters p {
   color: #ddd;
 }
 
+body.dark-mode #timer-display {
+  background-color: #444 !important;
+  border: 2px solid #666;
+  color: #ddd;
+}
+
 /* STYLES FOR MOBILE */
 @media (max-width: 768px) {
   .game-stats {
-    margin: 1rem;
+    /*margin: 80px 1rem 1rem;*/
     flex-direction: column;
     gap: 20px;
+
   }
 
   .name {
@@ -456,5 +463,10 @@ body.dark-mode #wrong-letters p {
   h2 {
     font-size: 2rem;
     margin: 15px 0;
+  }
+
+  .game-modes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
   }
 }
