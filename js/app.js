@@ -324,6 +324,10 @@ function handleLetterClick(letter) {
     updateWordDisplay();
 
     if (!displayedWord.includes('_')) {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
       stats.wins++;
       stats.currentStreak++;
       showModal('Gratulacje!', `Odgadłeś słowo: ${selectedWord}`, true);
@@ -339,6 +343,10 @@ function handleLetterClick(letter) {
       updateGameStats();
 
       if (errors === maxErrors) {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
         stats.losses++;
         stats.currentStreak = 0;
         showModal('Przegrana!', `Prawidłowe słowo to: ${selectedWord}`, true);
