@@ -4,38 +4,134 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hangman by Maro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atma:wght@300;400;500;600;700&family=DynaPuff:wght@400..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <meta name="description" content="Gra wisielec z różnymi poziomami trudności">
 </head>
 <body>
 <!-- Mode toggle -->
-<div id="mode-toggle">
-  <img src="img/moon_icon.png" alt="Toggle mode" id="mode-icon" width="30" height="30">
-</div>
-<!-- Start menu -->
-<div class="main">
-  <h1>Hangman by <span class="name">Maro</span></h1>
-  <h2>Wybierz poziom trudności:</h2>
-  <div class="difficulty-buttons">
-    <button class="btn selected" id="easy">Łatwy</button>
-    <button class="btn" id="medium">Średni</button>
-    <button class="btn" id="hard">Trudny</button>
+<div class="toggles-container">
+  <div id="mode-toggle" class="toggle-button">
+    <img src="img/moon_icon.png" alt="Toggle mode" id="mode-icon">
   </div>
-  <h2>Wybierz tryb gry:</h2>
-  <div class="game-modes">
-    <button class="btn mode selected" id="classic">Klasyczny</button>
-    <button class="btn mode" id="noMistake">Bez błędów</button>
-    <button class="btn mode" id="noHints">Bez podpowiedzi</button>
-    <button class="btn mode" id="express">Ekspres!</button>
+  <div id="music-toggle" class="toggle-button">
+    <img src="img/music_icon.png" alt="Toggle music" id="music-icon">
   </div>
-  <button class="start-button">Rozpocznij grę</button>
 </div>
 
-<!-- UI -->
+<!-- Start menu -->
+<div class="main">
+  <div class="logo-container">
+  <h1 class="wave-text"><span>H</span><span>A</span><span>N</span><span>G</span><span>M</span><span>A</span><span>N</span></h1>
+    <div class="author">by <span class="name">Maro</span></div>
+  <p class="app-subtitle">Odgadnij słowo i zostań mistrzem!</p>
+  </div>
+  <div class="menu-card">
+    <div class="tab-container">
+      <div class="tab-header">
+        <button class="tab-button active" data-tab="difficulty">Poziom</button>
+        <button class="tab-button" data-tab="mode">Tryb</button>
+        <button class="tab-button" data-tab="category">Kategoria</button>
+      </div>
+      <div class="tab-content active" id="difficulty-tab">
+        <h2 class="tab-title">Wybierz poziom:</h2>
+        <div class="buttons-grid difficulty-buttons">
+          <button class="btn selected" id="easy">
+            <span class="btn-icon">🔰</span>
+            <span class="btn-text">Łatwy</span>
+          </button>
+          <button class="btn" id="medium">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Średni</span>
+          </button>
+          <button class="btn" id="hard">
+            <span class="btn-icon">🔥</span>
+            <span class="btn-text">Trudny</span>
+          </button>
+          <button class="btn" id="extreme">
+            <span class="btn-icon">☠️</span>
+            <span class="btn-text">Ekstremalny</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="mode-tab">
+        <h2 class="tab-title">Wybierz tryb gry:</h2>
+        <div class="buttons-grid game-modes">
+          <button class="btn mode selected" id="classic">
+            <span class="btn-icon">🎮</span>
+            <span class="btn-text">Klasyczny</span>
+          </button>
+          <button class="btn mode" id="noMistake">
+            <span class="btn-icon">⚠️</span>
+            <span class="btn-text">Bez błędów</span>
+          </button>
+          <button class="btn mode" id="noHints">
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Bez podpowiedzi</span>
+          </button>
+          <button class="btn mode" id="express">
+            <span class="btn-icon">⏱️</span>
+            <span class="btn-text">Ekspres!</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="category-tab">
+        <h2 class="tab-title">Wybierz kategorię:</h2>
+        <div class="buttons-grid categories">
+          <button class="btn category selected" id="all">
+            <span class="btn-icon">🔠</span>
+            <span class="btn-text">Wszystkie</span>
+          </button>
+          <button class="btn category" id="animals">
+            <span class="btn-icon">🐾</span>
+            <span class="btn-text">Zwierzęta</span>
+          </button>
+          <button class="btn category" id="geography">
+            <span class="btn-icon">🌍</span>
+            <span class="btn-text">Geografia</span>
+          </button>
+          <button class="btn category" id="food">
+            <span class="btn-icon">🍔</span>
+            <span class="btn-text">Jedzenie</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-summary">
+      <h3 class="settings-title">Twoje ustawienia:</h3>
+      <div class="settings-display">
+        <div class="setting-item">
+          <span class="setting-icon">🔰</span>
+          <span class="setting-label">Poziom:</span>
+          <span class="setting-value" id="current-difficulty">Łatwy</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-icon">🎮</span>
+          <span class="setting-label">Tryb:</span>
+          <span class="setting-value" id="current-mode">Klasyczny</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-icon">🔠</span>
+          <span class="setting-label">Kategoria:</span>
+          <span class="setting-value" id="current-category">Wszystkie</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="start-button">
+    Rozpocznij grę
+  </button>
+</div>
+
 <div id="game-container" class="hidden">
   <div class="game-wrapper">
-    <!-- Left Column -->
     <div class="left-column">
       <div id="word-container"></div>
       <div id="keyboard"></div>
@@ -44,14 +140,15 @@
         <span id="wrong-letters-list"></span>
       </div>
     </div>
-    <!-- Right Column -->
     <div class="right-column">
       <canvas id="hangman-canvas" width="300" height="300"></canvas>
     </div>
   </div>
 </div>
 
-<script src="js/app.js"></script>
+<script src="js/game.js"></script>
+<script src="js/menu.js"></script>
 <script src="js/darkMode.js"></script>
+<script src="js/music.js"></script>
 </body>
 </html>
