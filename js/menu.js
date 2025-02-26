@@ -115,8 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
       gameContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
 
       setTimeout(() => {
-        mainMenu.classList.add('hidden');
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
 
+        mainMenu.classList.add('hidden');
         gameContainer.style.opacity = '1';
         gameContainer.style.transform = 'translateY(0)';
         gameContainer.classList.remove('hidden');
