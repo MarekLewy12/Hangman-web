@@ -744,6 +744,11 @@ document.getElementById('exit-button').onclick = () => {
     timerInterval = null;
   }
 
+  const modal = document.getElementById('game-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+
   const timerDisplay = document.getElementById('timer-display');
   if (timerDisplay) timerDisplay.remove();
 

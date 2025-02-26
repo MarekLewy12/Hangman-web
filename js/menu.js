@@ -109,15 +109,23 @@ document.addEventListener('DOMContentLoaded', () => {
       mainMenu.style.opacity = '0';
       mainMenu.style.transform = 'translateY(-20px)';
 
+      gameContainer.classList.remove('hidden');
+      gameContainer.style.opacity = '0';
+      gameContainer.style.transform = 'translateY(20px)';
+      gameContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
       setTimeout(() => {
         mainMenu.classList.add('hidden');
+
+        gameContainer.style.opacity = '1';
+        gameContainer.style.transform = 'translateY(0)';
         gameContainer.classList.remove('hidden');
 
         // run the game
         if (window.startGame) {
           window.startGame();
         }
-      }, 500);
+      }, 200);
     } else {
       console.error('Could not find the main menu or game container');
     }
