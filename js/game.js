@@ -13,6 +13,18 @@ let currentDifficulty = '';
 let timerInterval = null;
 let currentMode = 'classic';
 
+function cleanupTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  const timerDisplay = document.getElementById('timer-display');
+  if (timerDisplay) {
+    timerDisplay.remove();
+  }
+}
+
+
 // Stats
 let stats = {
   wins: 0,
@@ -274,6 +286,7 @@ function getRandomWord(difficulty) {
   }
 }
 
+
 // Keyboard handling
 document.addEventListener('keydown', (event) => {
   if (gameContainer.classList.contains('hidden')) return;
@@ -398,12 +411,8 @@ function updateGameStats() {
     document.querySelector('#game-container').insertBefore(statsDiv, document.querySelector('.game-wrapper'));
   }
   statsDiv.innerHTML = statsHTML;
+  statsDiv.style.margin = '80px 1rem 1rem';
 
-  if (currentMode !== 'express') {
-    statsDiv.style.margin = '80px 1rem 1rem';
-  } else {
-    statsDiv.style.margin = '0';
-  }
 
 }
 function showModal(title, message, showReplayButton = true) {
@@ -476,10 +485,7 @@ function handleLetterClick(letter) {
     updateWordDisplay();
 
     if (!displayedWord.includes('_')) {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
+      cleanupTimer();
       stats.wins++;
       stats.currentStreak++;
       showModal('Gratulacje!', `Odgadłeś słowo: ${selectedWord}`, true);
@@ -495,10 +501,7 @@ function handleLetterClick(letter) {
       updateGameStats();
 
       if (errors === maxErrors) {
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-        }
+        cleanupTimer();
         stats.losses++;
         stats.currentStreak = 0;
         showModal('Przegrana!', `Prawidłowe słowo to: ${selectedWord}`, true);
@@ -510,10 +513,7 @@ function handleLetterClick(letter) {
 }
 
 function resetGame() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
+  cleanupTimer();
   generateKeyboard();
 
   const selectedDifficultyButton = document.querySelector('.difficulty-buttons .btn.selected');
@@ -536,6 +536,7 @@ function resetGame() {
 
   // If in express mode, reinitialize the timer
   if (currentMode === 'express') {
+
     let timerDisplay = document.getElementById('timer-display');
     if (!timerDisplay) {
       timerDisplay = document.createElement('div');
@@ -588,6 +589,10 @@ function startGame() {
   currentDifficulty = difficulty;
 
   if (currentMode === 'express') {
+    cleanupTimer();
+
+
+
     let timeLeft = modeConfig.timeLimit;
     let timerDisplay = document.getElementById('timer-display');
     if (!timerDisplay) {
@@ -739,10 +744,7 @@ document.getElementById('hint-button').onclick = () => {
 };
 
 document.getElementById('exit-button').onclick = () => {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
+  cleanupTimer();
 
   const modal = document.getElementById('game-modal');
   if (modal) {
