@@ -11,6 +11,7 @@ let maxErrors = 0;
 let currentHint = '';
 let currentDifficulty = '';
 let timerInterval = null;
+let currentMode = 'classic';
 
 // Stats
 let stats = {
@@ -19,11 +20,20 @@ let stats = {
   currentStreak: 0
 };
 
-// references
-const wordContainer = document.getElementById('word-container');
-const wrongLettersList = document.getElementById('wrong-letters-list');
-const canvas = document.getElementById('hangman-canvas');
-const ctx = canvas.getContext('2d');
+let wordContainer, wrongLettersList, canvas, ctx;
+
+// references to game elements for easier access and error handling
+const initGameReferences = () => {
+  wordContainer = document.getElementById('word-container');
+  wrongLettersList = document.getElementById('wrong-letters-list');
+  canvas = document.getElementById('hangman-canvas');
+
+  if (canvas) {
+    ctx = canvas.getContext('2d');
+  } else {
+    console.error('Canvas element not found');
+  }
+}
 
 // Game modes
 const gameModes = {
@@ -106,28 +116,162 @@ const words = {
     { word: 'konsolidacja', hint: 'Proces łączenia lub umacniania czegoś' },
     { word: 'symbioza', hint: 'Współistnienie dwóch gatunków na wzajemną korzyść' },
     { word: 'polimeryzacja', hint: 'Proces tworzenia polimerów z monomerów' }
+  ],
+  extreme: [
+    { word: 'antykoncepcja', hint: 'Metody zapobiegające ciąży' },
+    { word: 'cywilizacja', hint: 'Społeczeństwo o wysokim stopniu rozwoju kultury i organizacji' },
+    { word: 'rozczarowanie', hint: 'Uczucie zawodu po niespełnieniu oczekiwań' },
+    { word: 'infrastruktura', hint: 'Podstawowe instalacje i usługi niezbędne do funkcjonowania społeczeństwa' },
+    { word: 'metafizyka', hint: 'Dział filozofii zajmujący się naturą rzeczywistości' },
+    { word: 'znieczulenie', hint: 'Powoduje utratę czucia bólu podczas operacji' },
+    { word: 'fenomenologia', hint: 'Nurt filozoficzny badający zjawiska oraz sposób ich przejawiania się' },
+    { word: 'interdyscyplinarny', hint: 'Łączący różne dziedziny nauki lub sztuki' },
+    { word: 'egzystencjalizm', hint: 'Nurt filozoficzny skupiający się na indywidualnym istnieniu człowieka' },
+    { word: 'teleportacja', hint: 'Przemieszczenie materii z jednego miejsca do drugiego bez pokonywania fizycznej przestrzeni' }
   ]
+};
+
+// Word categories
+const wordCategories = {
+  animals: {
+    easy: [
+      { word: 'kot', hint: 'Miauczący domowy pupil' },
+      { word: 'pies', hint: 'Najlepszy przyjaciel człowieka' },
+      { word: 'ryba', hint: 'Zwierzę żyjące w wodzie' },
+      { word: 'koń', hint: 'Zwierzę do jazdy wierzchem' }
+    ],
+    medium: [
+      { word: 'żyrafa', hint: 'Zwierzę z długą szyją' },
+      { word: 'krokodyl', hint: 'Gad z ostrymi zębami żyjący w wodzie' },
+      { word: 'pingwin', hint: 'Nielotny ptak z zimnych regionów' },
+      { word: 'tygrys', hint: 'Duży kot w paski' }
+    ],
+    hard: [
+      { word: 'narwal', hint: 'Arktyczny ssak morski z długim kłem' },
+      { word: 'pancernik', hint: 'Ssak z pancerzem z Ameryki Południowej' },
+      { word: 'orangutan', hint: 'Małpa człekokształtna z Borneo i Sumatry' },
+      { word: 'koala', hint: 'Torbacz żywiący się liśćmi eukaliptusa' }
+    ],
+    extreme: [
+      { word: 'dziobak', hint: 'Jajorodny ssak z Australii' },
+      { word: 'aksolotl', hint: 'Płaz z Meksyku zachowujący cechy larwalne' },
+      { word: 'mrówkojad', hint: 'Ssak z długim językiem żywiący się mrówkami' },
+      { word: 'okapi', hint: 'Krewniak żyrafy z krótszą szyją' }
+    ]
+  },
+  geography: {
+    easy: [
+      { word: 'polska', hint: 'Kraj nad Wisłą' },
+      { word: 'morze', hint: 'Duży zbiornik słonej wody' },
+      { word: 'góry', hint: 'Wyniesienia terenu o dużej wysokości' },
+      { word: 'rzeka', hint: 'Naturalny ciek wodny' }
+    ],
+    medium: [
+      { word: 'wulkan', hint: 'Góra z kraterem, z której wydobywa się lawa' },
+      { word: 'pustynia', hint: 'Obszar o minimalnych opadach atmosferycznych' },
+      { word: 'archipelag', hint: 'Grupa wysp blisko położonych' },
+      { word: 'kontynent', hint: 'Jeden z wielkich obszarów lądowych na Ziemi' }
+    ],
+    hard: [
+      { word: 'antarktyda', hint: 'Najzimniejszy kontynent na Ziemi' },
+      { word: 'himalaje', hint: 'Najwyższe pasmo górskie świata' },
+      { word: 'amazonia', hint: 'Największy las równikowy na świecie' },
+      { word: 'madagaskar', hint: 'Czwarta największa wyspa świata' }
+    ],
+    extreme: [
+      { word: 'kilimandżaro', hint: 'Najwyższy szczyt Afryki' },
+      { word: 'mesopotamia', hint: 'Starożytna kraina między Tygrysem a Eufratem' },
+      { word: 'popocatepetl', hint: 'Aktywny wulkan w Meksyku' },
+      { word: 'svalbard', hint: 'Norweskie terytorium w Arktyce' }
+    ]
+  },
+  food: {
+    easy: [
+      { word: 'chleb', hint: 'Podstawowy wypiek z mąki' },
+      { word: 'jabłko', hint: 'Owoc, który podobno jadła Ewa' },
+      { word: 'ser', hint: 'Produkt mleczny' },
+      { word: 'pizza', hint: 'Włoski placek z dodatkami' }
+    ],
+    medium: [
+      { word: 'spaghetti', hint: 'Włoski makaron podawany z sosem' },
+      { word: 'croissant', hint: 'Francuskie pieczywo w kształcie rogalika' },
+      { word: 'sushi', hint: 'Japońska potrawa z ryżem i rybą' },
+      { word: 'pierogi', hint: 'Polskie danie z ciasta z nadzieniem' }
+    ],
+    hard: [
+      { word: 'carpaccio', hint: 'Włoska przystawka z surowego mięsa' },
+      { word: 'bouillabaisse', hint: 'Francuska zupa rybna' },
+      { word: 'falafel', hint: 'Bliskowschodnie danie z ciecierzycy' },
+      { word: 'tiramisu', hint: 'Włoski deser z mascarpone i kawą' }
+    ],
+    extreme: [
+      { word: 'foie gras', hint: 'Francuski przysmak z wątroby kaczki lub gęsi' },
+      { word: 'bouillabaisse', hint: 'Prowansalska zupa rybna' },
+      { word: 'ratatouille', hint: 'Francuskie danie z duszonych warzyw' },
+      { word: 'goulash', hint: 'Węgierskie danie z mięsem i papryką' }
+    ]
+  }
 };
 
 let usedWords = {
   easy: new Set(),
   medium: new Set(),
-  hard: new Set()
+  hard: new Set(),
+  extreme: new Set(),
+  animals: {
+    easy: new Set(),
+    medium: new Set(),
+    hard: new Set(),
+    extreme: new Set()
+  },
+  geography: {
+    easy: new Set(),
+    medium: new Set(),
+    hard: new Set(),
+    extreme: new Set()
+  },
+  food: {
+    easy: new Set(),
+    medium: new Set(),
+    hard: new Set(),
+    extreme: new Set()
+  }
 };
 
 function getRandomWord(difficulty) {
-  const availableWords = words[difficulty].filter(wordObj => !usedWords[difficulty].has(wordObj.word));
+  const category = localStorage.getItem('category') || 'all';
 
-  // reset used words
-  if (availableWords.length === 0) {
-    usedWords[difficulty].clear();
-    return words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+  if (category === 'all') {
+    const availableWords = words[difficulty].filter(wordObj => !usedWords[difficulty].has(wordObj.word));
+
+    if (availableWords.length === 0) {
+      usedWords[difficulty].clear();
+      return words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+    }
+
+    // get random word
+    const randomWordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+    usedWords[difficulty].add(randomWordObj.word);
+    return randomWordObj;
+  } else {
+    // get random word from selected category
+    if (wordCategories[category] && wordCategories[category][difficulty]) {
+      const availableWords = wordCategories[category][difficulty].filter(wordObj => !usedWords[category][difficulty].has(wordObj.word));
+
+      if (availableWords.length === 0) {
+        usedWords[category][difficulty].clear();
+        return wordCategories[category][difficulty][Math.floor(Math.random() * wordCategories[category][difficulty].length)];
+      }
+
+      const randomWordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+      usedWords[category][difficulty].add(randomWordObj.word);
+      return randomWordObj;
+
+    } else {
+      console.warn(`Brak słów dla kategorii ${category} i poziomu trudności ${difficulty}, używam domyślnych słów`);
+      return getRandomWord('easy');
+    }
   }
-
-  // get random word
-  const randomWordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
-  usedWords[difficulty].add(randomWordObj.word);
-  return randomWordObj;
 }
 
 // Keyboard handling
@@ -148,7 +292,6 @@ for (const button of difficultyButtons) {
 }
 
 const modeButtons = document.querySelectorAll('.btn.mode');
-let currentMode = 'classic';
 
 modeButtons.forEach(button => {
   button.addEventListener('click', () => {
@@ -216,8 +359,10 @@ const HANGMAN_PARTS = [
 
 function initCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#444';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 }
 
 function drawHangman() {
@@ -423,13 +568,13 @@ function resetGame() {
 }
 
 function startGame() {
-  const selectedDifficultyButton = document.querySelector('.btn.selected');
-  if (!selectedDifficultyButton) {
-    alert('Proszę wybierz poziom trudności!');
-    return;
-  }
 
-  const difficulty = selectedDifficultyButton.id;
+  initGameReferences();
+
+  const difficulty = localStorage.getItem('difficulty') || 'easy';
+  currentMode = localStorage.getItem('mode') || 'classic';
+  const selectedCategory = localStorage.getItem('category') || 'all';
+
   const modeConfig = gameModes[currentMode].setup();
 
   const hintButton = document.getElementById('hint-button');
@@ -582,8 +727,8 @@ styleSheet.textContent = modalStyles;
 document.head.appendChild(styleSheet);
 
 // Add hint button
-const hintButton = `<button id="hint-button" class="btn">Podpowiedź</button>`;
-const exitButton = `<button id="exit-button" class="btn">Wyjdź</button>`;
+const hintButton = `<button id="hint-button" class="function-button">Podpowiedź</button>`;
+const exitButton = `<button id="exit-button" class="function-button">Wyjdź</button>`;
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', exitButton);
 document.querySelector('#wrong-letters').insertAdjacentHTML('afterend', hintButton);
 
@@ -605,3 +750,5 @@ document.getElementById('exit-button').onclick = () => {
   mainMenu.classList.remove('hidden');
   gameContainer.classList.add('hidden');
 };
+
+window.startGame = startGame; // export for menu
